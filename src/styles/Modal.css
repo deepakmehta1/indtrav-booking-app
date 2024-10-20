@@ -1,0 +1,42 @@
+/* src/styles/Modal.css */
+.modal-overlay {
+  position: fixed;
+  top: 30;
+  left: 30;
+  right: 30;
+  bottom: 30;
+  background-color: rgba(0, 0, 0, 0.7); /* Darker semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure the modal is above other content */
+  width: 45%;
+  height: 45%;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  text-align: center; /* Center the text */
+}
+
+.modal-content h2 {
+  color: green; /* Green text color */
+  margin-bottom: 20px; /* Space below the message */
+}
+
+.modal-close-button {
+  background-color: #6a5acd; /* Match the theme color */
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  padding: 10px 20px; /* Padding for the button */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+.modal-close-button:hover {
+  background-color: #5a4dcf; /* Darker on hover */
+}

@@ -1,4 +1,3 @@
-// Login.tsx
 import React, { useState, useEffect } from 'react';
 import { auth } from '../firebaseConfig';
 import {
@@ -14,6 +13,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
 import googleLogo from '../assets/google-logo.png';
 import { RootState, AppDispatch } from '../store';
+import Modal from './Modal'; // Import the Modal component
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -22,18 +22,20 @@ const Login: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const tripIdFromUrl = new URLSearchParams(useLocation().search).get(
     'trip_id',
-  ); // Get trip_id from URL
+  );
+  const tripId = useSelector((state: RootState) => state.trip.tripId);
 
   useEffect(() => {
     if (tripIdFromUrl) {
-      dispatch(setTripId(tripIdFromUrl)); // Set trip_id from URL to Redux
-      console.log('Trip ID from URL:', tripIdFromUrl); // Debugging line
+      dispatch(setTripId(tripIdFromUrl));
+      console.log('Trip ID from URL:', tripIdFromUrl);
     }
   }, [dispatch, tripIdFromUrl]);
 
@@ -57,7 +59,7 @@ const Login: React.FC = () => {
 
         if (user) {
           await sendEmailVerification(user);
-          console.log('User signed up:', user.email); // Debugging line
+          console.log('User signed up:', user.email);
         }
 
         alert(
@@ -65,16 +67,20 @@ const Login: React.FC = () => {
         );
       } else {
         await signInWithEmailAndPassword(auth, email, password);
-        alert('Login successful!');
-        console.log('User logged in:', email); // Debugging line
+        console.log('User logged in:', email);
 
-        // Redirect to the booking page with trip_id
-        const redirectPath = `/booking?trip_id=${tripIdFromUrl || ''}`;
-        navigate(redirectPath);
+        // Show modal on successful login
+        setShowModal(true);
+
+        // Redirect to the booking page with trip_id after a short delay
+        setTimeout(() => {
+          const redirectPath = `/booking?trip_id=${tripIdFromUrl || ''}`;
+          navigate(redirectPath);
+        }, 1500); // 1.5 seconds delay
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Login error:', err); // Debugging line
+      console.error('Login error:', err);
     }
   };
 
@@ -82,24 +88,34 @@ const Login: React.FC = () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      alert('Google login successful!');
-      console.log('Google login successful!'); // Debugging line
+      console.log('Google login successful!');
 
-      // Redirect to the booking page with trip_id
-      const redirectPath = `/booking?trip_id=${tripIdFromUrl || ''}`;
-      navigate(redirectPath);
+      // Show modal on successful Google login
+      setShowModal(true);
+
+      // Redirect to the booking page with trip_id after a short delay
+      setTimeout(() => {
+        const redirectPath = `/booking?trip_id=${tripIdFromUrl || ''}`;
+        navigate(redirectPath);
+      }, 1500); // 1.5 seconds delay
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
           : 'An error occurred during Google login',
       );
-      console.error('Google login error:', err); // Debugging line
+      console.error('Google login error:', err);
     }
   };
 
   return (
     <div className="login-container">
+      {showModal && (
+        <Modal
+          message="Yay!! You are successfully logged in! 🔥"
+          onClose={() => setShowModal(false)}
+        />
+      )}
       <h2>{isSignUp ? 'Sign Up' : 'Login'}</h2>
       <form onSubmit={handleSubmit}>
         <input

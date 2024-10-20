@@ -34,7 +34,7 @@ const App: React.FC = () => {
           <Router>
             <Navbar />
             <Routes>
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<LoginWrapper />} />
               <Route
                 path="/booking"
                 element={<ProtectedRoute element={<Home />} />}
@@ -52,6 +52,17 @@ const App: React.FC = () => {
       </PersistGate>
     </Provider>
   );
+};
+
+const LoginWrapper: React.FC = () => {
+  const { user } = useAuth(); // Get user from AuthContext
+
+  // If user is logged in, redirect to /booking
+  if (user) {
+    return <Navigate to="/booking" />;
+  }
+
+  return <Login />; // Render the Login component if not logged in
 };
 
 export default App;
