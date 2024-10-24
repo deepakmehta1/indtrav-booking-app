@@ -8,7 +8,7 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { useDispatch, useSelector } from 'react-redux';
-import { setTripId, setUserEmail } from '../store/reducers'; // Import setUserEmail
+import { setTripId, setUserEmail, setFirebaseToken } from '../store/reducers';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
 import googleLogo from '../assets/google-logo.png';
@@ -60,15 +60,23 @@ const Login: React.FC = () => {
         if (user) {
           await sendEmailVerification(user);
           console.log('User signed up:', user.email); // Debugging line
+          dispatch(setUserEmail(user.email)); // Dispatch user email to Redux store
+          dispatch(setFirebaseToken(await user.getIdToken())); // Dispatch the Firebase token
           setModalMessage(
             'Yay!! You are successfully signed up! Please verify your email before logging in.',
           );
           setShowModal(true); // Show modal on signup success
         }
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
+        const user = userCredential.user;
         console.log('User logged in:', email); // Debugging line
         dispatch(setUserEmail(email)); // Dispatch user email to Redux store
+        dispatch(setFirebaseToken(await user.getIdToken())); // Dispatch the Firebase token
 
         // Redirect to the booking page with trip_id
         const redirectPath = `/booking?trip_id=${tripId || ''}`;
@@ -83,11 +91,13 @@ const Login: React.FC = () => {
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user; // Get the user info
       console.log('Google login successful!'); // Debugging line
 
       // Dispatch user email to Redux store
-      dispatch(setUserEmail(auth.currentUser?.email || null));
+      dispatch(setUserEmail(user.email || null));
+      dispatch(setFirebaseToken(await user.getIdToken())); // Dispatch the Firebase token
 
       // Redirect to the booking page with trip_id
       const redirectPath = `/booking?trip_id=${tripId || ''}`;

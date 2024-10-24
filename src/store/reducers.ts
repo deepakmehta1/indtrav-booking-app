@@ -4,6 +4,7 @@ import { combineReducers } from 'redux';
 // Define action types
 const SET_TRIP_ID = 'SET_TRIP_ID';
 const SET_USER_EMAIL = 'SET_USER_EMAIL';
+const SET_FIREBASE_TOKEN = 'SET_FIREBASE_TOKEN';
 
 // Initial state type
 interface TripState {
@@ -11,7 +12,8 @@ interface TripState {
 }
 
 interface UserState {
-  email: string | null; // User email state
+  email: string | null;
+  firebaseToken: string;
 }
 
 // Action creator for setting trip_id
@@ -26,13 +28,19 @@ export const setUserEmail = (email: string | null) => ({
   payload: email,
 });
 
+export const setFirebaseToken = (token: string | null) => ({
+  type: SET_FIREBASE_TOKEN,
+  payload: token,
+});
+
 // Initial state
 const initialTripState: TripState = {
   tripId: null, // tripId should start as null
 };
 
 const initialUserState: UserState = {
-  email: null, // User email should start as null
+  email: null,
+  firebaseToken: '',
 };
 
 // Trip reducer
@@ -56,6 +64,8 @@ const userReducer = (
   switch (action.type) {
     case SET_USER_EMAIL:
       return { ...state, email: action.payload ?? null }; // Update user email
+    case SET_FIREBASE_TOKEN: // Handle the new action
+      return { ...state, firebaseToken: action.payload ?? '' }; // Update firebase token
     default:
       return state; // Always return the current state if no action matches
   }

@@ -7,6 +7,7 @@ export interface TripState {
 
 export interface UserState {
   email: string | null; // Define user email state
+  firebaseToken: string;
 }
 
 export interface RootState {

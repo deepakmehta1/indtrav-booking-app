@@ -1,6 +1,8 @@
+// src/components/UserInfoForm.tsx
 import React, { useState } from 'react';
 import { Row, Col, Form, Button } from 'react-bootstrap';
 import './styles/UserInfoForm.css'; // Ensure this points to the UserInfoForm.css
+import { createBooking } from '../../api/bookingService'; // Import the new createBooking function
 
 interface UserInfoFormProps {
   formData: {
@@ -15,8 +17,8 @@ interface UserInfoFormProps {
   tripDetails: any; // Accept trip details
   handleMobileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLElement>) => void; // Change to HTMLElement
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  isMultipleBooking: boolean; // New prop to indicate if it's a multiple booking
+  token: string; // Prop for the Firebase token
+  isMultipleBooking: boolean;
 }
 
 const UserInfoForm: React.FC<UserInfoFormProps> = ({
@@ -24,8 +26,8 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({
   tripDetails,
   handleMobileChange,
   handleInputChange,
-  handleSubmit,
-  isMultipleBooking, // Use the new prop
+  token,
+  isMultipleBooking,
 }) => {
   const [additionalPersons, setAdditionalPersons] = useState<any[]>([{}]); // Start with one additional person
 
@@ -51,6 +53,31 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({
 
   const removePerson = (index: number) => {
     setAdditionalPersons((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const bookingData = {
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      gender: formData.gender,
+      age: formData.age ? formData.age : null, // Ensure age is a string
+      sharing_type: formData.sharingType || null,
+      trip_id: tripDetails?.id || null, // Assuming tripDetails contains the trip ID
+      mobile: formData.mobile,
+    };
+
+    try {
+      const response = await createBooking(bookingData, token);
+      if (response.status === 'success') {
+        // Handle success (e.g., navigate to the next step)
+        console.log('Booking successful:', response.message);
+      }
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      // Handle error appropriately (e.g., show a message)
+    }
   };
 
   return (
